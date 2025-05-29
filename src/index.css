@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .glass {
+    background: var(--glass-color);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    @apply border border-white/10 shadow-lg;
+  }
+}
+  
+  [data-theme='light'] {
+    --bg-gradient-from: #f3f4f6;
+    --bg-gradient-to: #e5e7eb;
+    --glass-color: rgba(255, 255, 255, 0.7);
+  }
+
+  [data-theme='dark'] {
+    --bg-gradient-from: #1f2937;
+    --bg-gradient-to: #111827;
+    --glass-color: rgba(0, 0, 0, 0.3);
+  }
+
+  body {
+    background: linear-gradient(to bottom right, var(--bg-gradient-from), var(--bg-gradient-to));
+  }
