@@ -1,74 +1,56 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { User, Chat } from '@/types/chat';
+import { useEffect, useState } from 'react';
 
-interface ChatWindowProps {
-  currentChat: Chat | null;
-  currentUser: User;
-}
+type Message = {
+  id: number;
+  sender: string;
+  content: string;
+};
 
-export const ChatWindow = ({ currentChat, currentUser }: ChatWindowProps) => {
-  const [messages, setMessages] = useState<MessageType[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const loadMessages = useCallback(() => {
-    if (currentChat) {
-      setMessages([
-        {
-          id: '1',
-          text: 'Привет! Как твой проект?',
-          sender: {
-            id: '2',
-            name: 'Иван Иванов',
-            avatar: '👨‍💼'
-          },
-          timestamp: new Date(Date.now() - 3600000)
-        },
-        {
-          id: '2',
-          text: 'Отлично! Только что добавил анимации.',
-          sender: currentUser,
-          timestamp: new Date(),
-          status: 'read'
-        }
-      ]);
-    }
-  }, [currentChat, currentUser]);
+export const ChatWindow = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
 
   useEffect(() => {
-    loadMessages();
-  }, [loadMessages]);
+    const loadInitialMessages = async () => {
+      const initialMessages = [
+        { id: 1, sender: 'bot', content: 'Добро пожаловать в чат!' }
+      ];
+      setMessages(initialMessages);
+    };
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    loadInitialMessages();
+  }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSendMessage = () => {
-    if (newMessage.trim() && currentChat) {
-      const message: MessageType = {
-        id: Date.now().toString(),
-        text: newMessage,
-        sender: currentUser,
-        timestamp: new Date(),
-        status: 'sent'
-      };
-      setMessages([...messages, message]);
-      setNewMessage('');
-    }
+    if (!input.trim()) return;
+
+    const newMessage: Message = {
+      id: messages.length + 1,
+      sender: 'user',
+      content: input
+    };
+
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    setInput('');
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* ... (остальной код без изменений) ... */}
+    <div className="chat-window">
+      <div className="messages">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`message ${msg.sender}`}>
+            {msg.content}
+          </div>
+        ))}
+      </div>
+      <div className="input-area">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <button onClick={handleSendMessage}>Отправить</button>
+      </div>
     </div>
   );
 };
-
-interface MessageType {
-  id: string;
-  text: string;
-  sender: User;
-  timestamp: Date;
-  status?: 'sent' | 'delivered' | 'read';
-}

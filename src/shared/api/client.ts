@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: '/api', // Базовый URL вашего бэкенда
+  baseURL: 'http://localhost:5000/api', // Базовый URL вашего бэкенда
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

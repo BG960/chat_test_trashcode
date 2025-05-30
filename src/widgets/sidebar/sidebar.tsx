@@ -9,10 +9,27 @@ type SidebarProps = {
 };
 export const Sidebar = ({ onChatSelect }: SidebarProps) => {
   const [chats, setChats] = useState<Chat[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchChats().then(setChats);
+    const loadChats = async () => {
+      try {
+        const data = await fetchChats();
+        setChats(data);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err) {
+        setError('Не удалось загрузить чаты');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadChats();
   }, []);
+
+  if (isLoading) return <div className="p-4">Загрузка чатов...</div>;
+  if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
     <div className="w-64 glass rounded-xl p-4">

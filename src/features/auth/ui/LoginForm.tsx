@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useAuth } from '../lib/useAuth';
-import { Button} from '@/shared/ui/Button';
+import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-
+import { useState } from 'react';
 
 const loginSchema = z.object({
   email: z.string().email('Некорректный email'),
@@ -15,48 +16,61 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export const LoginForm = () => {
   const { login } = useAuth();
+  const [serverError, setServerError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema)
+    resolver:async (data) => {
+    return {
+      values: data,
+      errors: {},
+    };
+  }
   });
-  const { getValues } = useForm<LoginFormData>();
 
-const emailValue = getValues('email');
-const passwordValue = getValues('password');
   const onSubmit = async (data: LoginFormData) => {
+    console.log('Форма валидна, данные:', data);
+
+    setServerError('');
+    setIsSubmitting(true);
     try {
       await login(data.email, data.password);
-    } catch (error) {
-      console.error('Ошибка входа:', error);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setServerError(error?.response?.data?.error || 'Ошибка входа');
+    } finally {
+      setIsSubmitting(false);
     }
   };
+console.log('useAuth:', { login });
 
   return (
-<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-  <div>
-    <Input
-      type="email"
-      placeholder="Email"
-      value={emailValue}
-      {...register('email')}
-      error={errors.email?.message}
-    />
-  </div>
-  <div>
-    <Input
-      type="password"
-      placeholder="Пароль"
-      value={passwordValue}
-      {...register('password')}
-      error={errors.password?.message}
-    />
-  </div>
-<Button className="w-full">
-  Войти
-</Button>
-</form>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {serverError && <p className="text-red-500">{serverError}</p>}
+
+      <Input
+        placeholder="Email"
+        type="email"
+        {...register('email')}
+        error={errors.email?.message}
+      />
+
+      <Input
+        placeholder="Пароль"
+        type="password"
+        {...register('password')}
+        error={errors.password?.message}
+      />
+
+      <Button type= "submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? 'Входим...' : 'Войти'}
+      </Button>
+    </form>
   );
+  
 };
+

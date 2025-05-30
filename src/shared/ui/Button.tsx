@@ -1,31 +1,27 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { motion } from 'framer-motion';
-
-interface ButtonProps {
+import { ButtonHTMLAttributes, FC } from 'react';
+import clsx from 'clsx';
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  onClick?: () => void;
-  active?: boolean;
-  disabled?: boolean;
-  className?: string;
 }
-
-export const Button = ({ 
-  children, 
-  onClick, 
-  active = false, 
-  disabled = false,
-  className = ''
-}: ButtonProps) => {
+export const Button: FC<ButtonHTMLAttributes<HTMLButtonElement>> = ({
+  children,
+  className,
+  disabled,
+  ...props
+}) => {
   return (
-    <motion.button
-      whileHover={{ scale: disabled ? 1 : 1.05 }}
-      whileTap={{ scale: disabled ? 1 : 0.95 }}
-      onClick={onClick}
+    <button
+      
+      className={clsx(
+        'glass px-4 py-2 rounded-full text-white',
+        className
+      )}
       disabled={disabled}
-      className={`glass px-4 py-2 rounded-full text-white ${
-        active ? 'bg-primary/50' : ''
-      } ${className}`}
+      {...props} // 🔥 это важно: передаем type, onClick, onSubmit, etc.
     >
       {children}
-    </motion.button>
+    </button>
   );
 };

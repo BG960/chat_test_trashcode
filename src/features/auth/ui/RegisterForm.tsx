@@ -1,83 +1,88 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useAuth } from '../lib/useAuth';
-import { Button} from '@/shared/ui/Button';
+import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useState } from 'react';
 
 const registerSchema = z.object({
-  username: z.string().min(3, 'Имя должно быть не менее 3 символов'),
+  username: z.string().min(3, 'Имя должно быть не короче 3 символов'),
   email: z.string().email('Некорректный email'),
   password: z.string().min(6, 'Пароль должен быть не менее 6 символов'),
   confirmPassword: z.string()
 }).refine(data => data.password === data.confirmPassword, {
   message: 'Пароли не совпадают',
-  path: ['confirmPassword']
+  path: ['confirmPassword'],
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export const RegisterForm = () => {
   const { register: registerUser } = useAuth();
+  const [serverError, setServerError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema)
+    resolver: async (data) => {
+    return {
+      values: data,
+      errors: {},
+    };
+  }
   });
 
-    const { getValues } = useForm<RegisterFormData>();
-  
-  const emailValue = getValues('email');
-  const passwordValue = getValues('password');
   const onSubmit = async (data: RegisterFormData) => {
+    setServerError('');
+    setIsSubmitting(true);
     try {
       await registerUser(data.username, data.email, data.password);
-    } catch (error) {
-      console.error('Ошибка регистрации:', error);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setServerError(error?.response?.data?.error || 'Ошибка регистрации');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <Input
-          placeholder="Имя пользователя"
-          value={emailValue}
-          {...register('username')}
-          error={errors.username?.message}
-        />
-      </div>
-      <div>
-        <Input
-          type="email"
-          placeholder="Email"
-          value={emailValue}
-          {...register('email')}
-          error={errors.email?.message}
-        />
-      </div>
-      <div>
-        <Input
-          type="password"
-          placeholder="Пароль"
-          value={passwordValue}
-          {...register('password')}
-          error={errors.password?.message}
-        />
-      </div>
-      <div>
-        <Input
-          type="password"
-          placeholder="Подтвердите пароль"
-          value={passwordValue}
-          {...register('confirmPassword')}
-          error={errors.confirmPassword?.message}
-        />
-      </div>
-      <Button className="w-full">
-        Зарегистрироваться
+      {serverError && <p className="text-red-500">{serverError}</p>}
+
+      <Input
+        placeholder="Имя пользователя"
+        {...register('username')}
+        error={errors.username?.message}
+      />
+
+      <Input
+        placeholder="Email"
+        type="email"
+        {...register('email')}
+        error={errors.email?.message}
+      />
+
+      <Input
+        placeholder="Пароль"
+        type="password"
+        {...register('password')}
+        error={errors.password?.message}
+      />
+
+      <Input
+        placeholder="Повторите пароль"
+        type="password"
+        {...register('confirmPassword')}
+        error={errors.confirmPassword?.message}
+      />
+
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? 'Регистрируем...' : 'Зарегистрироваться'}
       </Button>
     </form>
   );

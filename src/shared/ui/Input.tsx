@@ -1,7 +1,6 @@
 import { ChangeEvent, KeyboardEvent } from 'react';
 
 type InputProps = {
-  value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   onKeyPress?: (e: KeyboardEvent<HTMLInputElement>) => void;
@@ -10,11 +9,10 @@ type InputProps = {
 
 };
 
-export const Input = ({ value, onChange, placeholder, onKeyPress }: InputProps) => {
+export const Input = ({  onChange, placeholder, onKeyPress }: InputProps) => {
   return (
     <input
       type="text"
-      value={value}
       onChange={onChange}
       onKeyPress={onKeyPress}
       placeholder={placeholder}

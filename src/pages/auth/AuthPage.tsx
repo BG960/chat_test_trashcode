@@ -4,6 +4,7 @@ import { useState } from 'react';
 
  const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
+console.log('AuthPage ререндер:', isLogin);
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-900 to-purple-900">

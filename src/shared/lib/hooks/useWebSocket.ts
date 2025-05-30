@@ -6,11 +6,13 @@ type WsMessage = {
   payload: string | number | object;
 };
 
-export const useWebSocket = (url: string) => {
+export const useWebSocket = (url: string, shouldConnect = true) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<WsMessage[]>([]);
 
   useEffect(() => {
+    if (!shouldConnect) return;
+
     const socketInstance = io(url, {
       transports: ['websocket'],
       withCredentials: true,
@@ -32,7 +34,7 @@ export const useWebSocket = (url: string) => {
     return () => {
       socketInstance.disconnect();
     };
-  }, [url]);
+  }, [url, shouldConnect]);
 
   const sendMessage = (message: WsMessage) => {
     socket?.emit('message', message);
