@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 type SidebarProps = {
   onChatSelect: (chat: Chat) => void;
 };
+
 export const Sidebar = ({ onChatSelect }: SidebarProps) => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,7 +50,7 @@ export const Sidebar = ({ onChatSelect }: SidebarProps) => {
               <h3 className="text-white truncate">{chat.title}</h3>
               {chat.lastMessage && (
                 <p className="text-xs text-white/50 truncate">
-                  {chat.lastMessage.text}
+                  {chat.lastMessage.content}
                 </p>
               )}
             </div>

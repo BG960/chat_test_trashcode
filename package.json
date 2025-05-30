@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
     "@hookform/resolvers": "^5.0.1",
     "@tailwindcss/typography": "^0.5.16",
     "@types/date-fns": "^2.6.3",
