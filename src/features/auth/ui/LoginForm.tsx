@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useAuth } from '../lib/useAuth';
+import { useAuth } from '../lib/AuthContext';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { useForm } from 'react-hook-form';
@@ -24,12 +23,8 @@ export const LoginForm = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>({
-    resolver:async (data) => {
-    return {
-      values: data,
-      errors: {},
-    };
-  }
+   resolver: zodResolver(loginSchema)
+
   });
 
   const onSubmit = async (data: LoginFormData) => {

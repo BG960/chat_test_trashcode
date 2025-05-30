@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useAuth } from '../lib/useAuth';
+import { useAuth } from '../lib/AuthContext';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { useForm } from 'react-hook-form';
@@ -29,15 +28,15 @@ export const RegisterForm = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormData>({
-    resolver: async (data) => {
-    return {
-      values: data,
-      errors: {},
-    };
-  }
+    resolver: zodResolver(registerSchema),
   });
+console.log('Ошибки формы:', errors);
 
   const onSubmit = async (data: RegisterFormData) => {
+      console.log('⏩ onSubmit вызван с данными:', data);
+
+    console.log('Форма отправлена', data);
+
     setServerError('');
     setIsSubmitting(true);
     try {
