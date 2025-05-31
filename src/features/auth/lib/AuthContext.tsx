@@ -3,7 +3,7 @@ import axios from '@/shared/api/client';
 import { useNavigate } from 'react-router-dom';
 import { Chat, User } from '@/types/chat';
 
-type AuthContextType = {
+interface AuthContextType {
   isAuth: boolean;
   user: User | null;
   isLoading: boolean;
@@ -11,7 +11,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-};
+}
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -19,13 +19,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
   const [isAuth, setIsAuth] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // ✅ теперь тут
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const fetchProfile = async () => {
-    const res = await axios.get('/auth/me');
-    setUser(res.data);
-    setIsAuth(true);
+    try {
+      const res = await axios.get('/auth/me');
+      setUser(res.data);
+      setIsAuth(true);
+    } catch (err) {
+      console.error('Ошибка при получении профиля:', err);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const fetchChats = async () => {
@@ -36,7 +43,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      await axios.post('/auth/login', { email, password });
+      const res = await axios.post('/auth/login', { email, password });
+      localStorage.setItem('token', res.data.token);
       await fetchProfile();
       await fetchChats();
       navigate('/main');
@@ -48,7 +56,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const register = async (username: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      await axios.post('/auth/register', { username, email, password });
+      const res = await axios.post('/auth/register', { username, email, password });
+      localStorage.setItem('token', res.data.token);
       await fetchProfile();
       await fetchChats();
       navigate('/main');
@@ -66,19 +75,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    const tryAutoLogin = async () => {
-      setIsLoading(true);
-      try {
-        await fetchProfile();
-        await fetchChats();
-      } catch {
-        console.log('Авто-вход не удался');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    tryAutoLogin();
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchProfile();
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
   return (

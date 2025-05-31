@@ -2,6 +2,8 @@
 import { S } from "framer-motion/dist/types.d-CtuPurYT";
 
 export interface User {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _id: any;
   email: string;
   id: string;
   name: string;

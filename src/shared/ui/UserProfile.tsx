@@ -22,16 +22,25 @@ export const UserProfile = () => {
   }, [isOpen]);
 
   return (
-    <>
+    <div className="flex items-center space-x-4">
+      <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-white text-sm font-bold">
+        {user.username ? user.username[0].toUpperCase() : '?'}
+      </div>
+      <div className="hidden md:flex flex-col">
+        <span className="text-sm font-medium text-gray-900 dark:text-white">{user.username}</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">{user.email}</span>
+      </div>
       <button
         onClick={() => setIsOpen(true)}
-        className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 overflow-hidden"
+        className="ml-2 text-blue-500 hover:underline text-sm"
       >
-        <img
-          src="/default-avatar.png"
-          alt="Профиль"
-          className="object-cover w-full h-full"
-        />
+        Профиль
+      </button>
+      <button
+        onClick={logout}
+        className="ml-2 text-red-500 hover:underline text-sm"
+      >
+        Выйти
       </button>
 
       <Transition appear show={isOpen} as={Fragment}>
@@ -87,12 +96,6 @@ export const UserProfile = () => {
                     >
                       Закрыть
                     </button>
-                    <button
-                      className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white"
-                      onClick={logout}
-                    >
-                      Выйти
-                    </button>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
@@ -100,6 +103,6 @@ export const UserProfile = () => {
           </div>
         </Dialog>
       </Transition>
-    </>
+    </div>
   );
 };
