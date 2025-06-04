@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import axios from '@/shared/api/client';
+import apiClient from '@/shared/api/client';
 import { useNavigate } from 'react-router-dom';
 import { Chat, User } from '@/types/chat';
 
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get('/auth/me');
+      const res = await apiClient.get('/auth/me');
       setUser(res.data);
       setIsAuth(true);
     } catch (err) {
@@ -36,14 +36,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const fetchChats = async () => {
-    const res = await axios.get('/chats');
+    const res = await apiClient.get('/chats');
     setChats(res.data);
   };
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await axios.post('/auth/login', { email, password });
+      const res = await apiClient.post('/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
       await fetchProfile();
       await fetchChats();
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const register = async (username: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await axios.post('/auth/register', { username, email, password });
+      const res = await apiClient.post('/auth/register', { username, email, password });
       localStorage.setItem('token', res.data.token);
       await fetchProfile();
       await fetchChats();

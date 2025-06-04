@@ -1,31 +1,18 @@
-import { Chat, User } from '@/types/chat';
-import axiosInstance from './client';
+import axios from './client';
+import { Chat , User  } from '@/types/chat';
 
-export const mockChats: Chat[] = [
-  {
-    id: '1',
-    title: "Общий чат",
-    unreadCount: 3,
-    participants: [],
-    type: 'group',
-    createdAt: new Date(),
-    lastMessage: {
-      id: '1',
-      content: "Привет! Как дела?",
-      timestamp: new Date(),
-      senderId: '1',
-      sender: { id: '456', username: 'Анна' }
-    },
-    sender: ''
-  }
-];
+
+export const fetchProfile = async (): Promise<User> => {
+  const res = await axios.get('/auth/me');
+  return res.data;
+};
 
 export const fetchChats = async (): Promise<Chat[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(mockChats), 500);
-  });
+  const res = await axios.get('/chats');
+  return res.data;
 };
-export const fetchUserProfile = async (): Promise<User> => {
-  const response = await axiosInstance.get('/users/me');
-  return response.data;
+
+export const fetchChat = async (id: string): Promise<Chat> => {
+  const res = await axios.get(`/chats/${id}`);
+  return res.data;
 };

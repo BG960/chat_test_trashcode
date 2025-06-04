@@ -1,6 +1,6 @@
 // src/features/chat/CreateChatModal.tsx
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useAuth } from '@/features/auth/lib/AuthContext';
 import axios from '@/shared/api/client';
 
@@ -13,15 +13,46 @@ export const CreateChatModal = ({ isOpen, onClose }: Props) => {
   const [title, setTitle] = useState('');
   const [isGroup, setIsGroup] = useState(false);
   const [error, setError] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [friends, setFriends] = useState<{ _id: string; username: string }[]>([]);
+
   const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const res = await axios.get('/api/users/friends');
+        setFriends(res.data);
+      } catch (err) {
+        console.error('Ошибка при получении друзей:', err);
+      }
+    };
+
+    if (isGroup) fetchFriends();
+  }, [isGroup]);
+
+  const toggleUserSelection = (id: string) => {
+    setSelectedUsers((prev) =>
+      prev.includes(id) ? prev.filter((uid) => uid !== id) : [...prev, id]
+    );
+  };
 
   const handleCreate = async () => {
     try {
       if (!title.trim()) return setError('Название обязательно');
+
+      const members = isGroup
+        ? [user?._id, ...selectedUsers]
+        : selectedUsers.length === 1
+        ? [user?._id, selectedUsers[0]]
+        : [];
+
+      if (members.length < 2) return setError('Выберите хотя бы одного участника');
+
       await axios.post('/api/chats', {
         title,
         isGroup,
-        members: [user?._id],
+        members,
       });
       onClose();
     } catch (err) {
@@ -61,7 +92,7 @@ export const CreateChatModal = ({ isOpen, onClose }: Props) => {
                   Создание чата
                 </Dialog.Title>
 
-                <div className="mt-4">
+                <div className="mt-4 space-y-4">
                   <input
                     type="text"
                     placeholder="Название чата"
@@ -69,18 +100,33 @@ export const CreateChatModal = ({ isOpen, onClose }: Props) => {
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full px-4 py-2 rounded border bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
-                </div>
 
-                <div className="mt-4 flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={isGroup}
-                    onChange={(e) => setIsGroup(e.target.checked)}
-                    id="isGroup"
-                  />
-                  <label htmlFor="isGroup" className="text-gray-700 dark:text-gray-300">
-                    Групповой чат
-                  </label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={isGroup}
+                      onChange={(e) => setIsGroup(e.target.checked)}
+                      id="isGroup"
+                    />
+                    <label htmlFor="isGroup" className="text-gray-700 dark:text-gray-300">
+                      Групповой чат
+                    </label>
+                  </div>
+
+                  {isGroup && (
+                    <div className="max-h-48 overflow-y-auto border rounded p-2 space-y-1">
+                      {friends.map((friend) => (
+                        <label key={friend._id} className="flex items-center space-x-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={selectedUsers.includes(friend._id)}
+                            onChange={() => toggleUserSelection(friend._id)}
+                          />
+                          <span className="text-gray-800 dark:text-white">{friend.username}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {error && (

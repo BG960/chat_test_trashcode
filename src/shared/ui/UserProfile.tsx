@@ -1,108 +1,111 @@
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useEffect, useState } from 'react';
+// src/shared/ui/UserProfile.tsx
 import { useAuth } from '@/features/auth/lib/AuthContext';
-import axios from '@/shared/api/client';
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment, useState } from 'react';
 
-export const UserProfile = () => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const UserProfile = ({ onClose }: { onClose?: () => void }) => {  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [profile, setProfile] = useState(user);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await axios.get('/api/auth/me');
-        setProfile(res.data);
-      } catch (err) {
-        console.error('Ошибка при загрузке профиля', err);
-      }
-    };
-
-    if (isOpen) fetchProfile();
-  }, [isOpen]);
+  const openModal = () => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
 
   return (
-    <div className="flex items-center space-x-4">
-      <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-white text-sm font-bold">
-        {user.username ? user.username[0].toUpperCase() : '?'}
-      </div>
-      <div className="hidden md:flex flex-col">
-        <span className="text-sm font-medium text-gray-900 dark:text-white">{user.username}</span>
-        <span className="text-xs text-gray-500 dark:text-gray-400">{user.email}</span>
-      </div>
+    <>
       <button
-        onClick={() => setIsOpen(true)}
-        className="ml-2 text-blue-500 hover:underline text-sm"
+        className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300"
+        onClick={openModal}
       >
-        Профиль
+        {user?.avatar ? (
+          <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gray-400 flex items-center justify-center text-white">
+            {user?.username?.[0]?.toUpperCase()}
+          </div>
+        )}
       </button>
-      <button
-        onClick={logout}
-        className="ml-2 text-red-500 hover:underline text-sm"
-      >
-        Выйти
-      </button>
+      <ProfileModal isOpen={isOpen} closeModal={closeModal} />
+    </>
+  );
+};
 
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={() => setIsOpen(false)}>
+export const ProfileModal = ({
+  isOpen,
+  closeModal,
+}: {
+  isOpen: boolean;
+  closeModal: () => void;
+}) => {
+  const { user, logout } = useAuth();
+
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={closeModal}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-200"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-150"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-30" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 flex items-center justify-center p-4">
           <Transition.Child
             as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
+            enter="ease-out duration-200"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-150"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
           >
-            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-6">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-90"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-90"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-md bg-white dark:bg-gray-800 p-6 shadow-xl transition-all">
-                  <Dialog.Title className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                    Мой профиль
-                  </Dialog.Title>
-
-                  <div className="flex items-center gap-4 mb-4">
+            <Dialog.Panel className="w-full max-w-sm transform overflow-hidden rounded-lg bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Title className="text-lg font-semibold mb-4">
+                Профиль пользователя
+              </Dialog.Title>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-300">
+                  {user?.avatar ? (
                     <img
-                      src="/default-avatar.png"
-                      alt="Аватар"
-                      className="w-16 h-16 rounded-full object-cover bg-gray-200 dark:bg-gray-700"
+                      src={user.avatar}
+                      alt="avatar"
+                      className="w-full h-full object-cover"
                     />
-                    <div>
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {profile?.username || 'Имя пользователя'}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {profile?.email || 'email@example.com'}
-                      </p>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white text-3xl font-bold">
+                      {user?.username?.[0]?.toUpperCase()}
                     </div>
-                  </div>
+                  )}
+                </div>
+                <div className="text-center space-y-1">
+                  <div className="text-lg font-medium">{user?.username}</div>
+                  <div className="text-sm text-gray-500">{user?.email}</div>
+                </div>
+              </div>
 
-                  <div className="mt-6 flex justify-end gap-2">
-                    <button
-                      className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Закрыть
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-    </div>
+              <div className="mt-6 flex justify-end">
+                <button
+                  className="text-red-500 hover:underline text-sm mr-4"
+                  onClick={logout}
+                >
+                  Выйти
+                </button>
+                <button
+                  className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
+                  onClick={closeModal}
+                >
+                  Закрыть
+                </button>
+              </div>
+            </Dialog.Panel>
+          </Transition.Child>
+        </div>
+      </Dialog>
+    </Transition>
   );
 };

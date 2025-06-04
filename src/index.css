@@ -26,3 +26,18 @@
   body {
     background: linear-gradient(to bottom right, var(--bg-gradient-from), var(--bg-gradient-to));
   }
+.btn-primary {
+  @apply px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400 transition;
+}
+
+.btn-icon-primary {
+  @apply w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 transition;
+}
+
+.btn-icon-secondary {
+  @apply w-10 h-10 flex items-center justify-center rounded-full bg-gray-300 text-black hover:bg-gray-400 transition;
+}

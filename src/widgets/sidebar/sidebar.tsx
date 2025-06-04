@@ -1,67 +1,37 @@
-import { fetchChats } from '@/shared/api/api';
-import { useEffect, useState } from 'react';
+import { useAuth } from '@/features/auth/lib/AuthContext';
 import { Chat } from '@/types/chat';
-import { motion } from 'framer-motion';
-
 
 type SidebarProps = {
   onChatSelect: (chat: Chat) => void;
 };
 
 export const Sidebar = ({ onChatSelect }: SidebarProps) => {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const loadChats = async () => {
-      try {
-        const data = await fetchChats();
-        setChats(data);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err) {
-        setError('Не удалось загрузить чаты');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadChats();
-  }, []);
-
-  if (isLoading) return <div className="p-4">Загрузка чатов...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  const { chats } = useAuth();
 
   return (
-    <div className="w-64 glass rounded-xl p-4">
-      <h2 className="text-white text-xl mb-4">Чаты</h2>
-      <div className="space-y-2">
-         {chats.map((chat) => (
-        <motion.div
-          key={chat.id}
-          whileHover={{ x: 5 }}
-          className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-white/5"
-          onClick={() => onChatSelect(chat)}
-        >
-            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-              {chat.title[0]}
+    <div className="overflow-y-auto h-full divide-y dark:divide-gray-700">
+      {chats.length === 0 ? (
+        <div className="p-4 text-gray-500 dark:text-gray-400 text-sm">
+          У вас пока нет чатов.
+        </div>
+      ) : (
+        chats.map((chat) => (
+          <div
+            key={chat.id}
+            onClick={() => onChatSelect(chat)}
+            className="cursor-pointer px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+          >
+            <div className="font-medium text-gray-800 dark:text-gray-200">
+              {chat.title}
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-white truncate">{chat.title}</h3>
-              {chat.lastMessage && (
-                <p className="text-xs text-white/50 truncate">
-                  {chat.lastMessage.content}
-                </p>
-              )}
-            </div>
-            {chat.unreadCount > 0 && (
-              <span className="ml-2 bg-primary rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                {chat.unreadCount}
-              </span>
+            {chat.lastMessage && (
+              <div className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                {chat.lastMessage.content}
+              </div>
             )}
-          </motion.div>
-        ))}
-      </div>
+          </div>
+        ))
+      )}
     </div>
   );
 };
