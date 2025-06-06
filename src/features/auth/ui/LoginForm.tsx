@@ -1,5 +1,5 @@
 import { useAuth } from '../lib/AuthContext';
-import { Button } from '@/shared/ui/Button';
+import { Button } from '@/shared/ui/button/Button';
 import { Input } from '@/shared/ui/Input';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

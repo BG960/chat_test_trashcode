@@ -2,11 +2,20 @@
 module.exports = {
   content: [
     './index.html',
-    './src/**/*.{js,ts,jsx,tsx}'
+    './src/**/*.{js,ts,jsx,tsx}',
   ],
-   theme: {
+ 
+  theme: {
     extend: {
-      // Добавляем кастомные стили для Markdown превью
+      colors: {
+        background: 'var(--color-background)',
+        foreground: 'var(--color-foreground)',
+        primary: 'var(--color-primary)',
+        secondary: 'var(--color-secondary)',
+        muted: 'var(--color-muted)',
+        text: 'var(--color-text)',
+        accent: 'var(--color-accent)',
+      },
       typography: {
         invert: {
           css: {
@@ -19,6 +28,6 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/typography'), // Для стилизации Markdown
+    require('@tailwindcss/typography'),
   ],
-}
+};

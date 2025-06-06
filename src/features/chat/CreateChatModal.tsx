@@ -15,6 +15,7 @@ export const CreateChatModal = ({ isOpen, onClose }: Props) => {
   const [error, setError] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [friends, setFriends] = useState<{ _id: string; username: string }[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const { user } = useAuth();
 
@@ -64,15 +65,7 @@ export const CreateChatModal = ({ isOpen, onClose }: Props) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
+        <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
           <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" />
         </Transition.Child>
 
@@ -88,9 +81,7 @@ export const CreateChatModal = ({ isOpen, onClose }: Props) => {
               leaveTo="scale-95 opacity-0"
             >
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title className="text-lg font-medium text-gray-900 dark:text-white">
-                  Создание чата
-                </Dialog.Title>
+                <Dialog.Title className="text-lg font-medium text-gray-900 dark:text-white">Создание чата</Dialog.Title>
 
                 <div className="mt-4 space-y-4">
                   <input
@@ -108,31 +99,46 @@ export const CreateChatModal = ({ isOpen, onClose }: Props) => {
                       onChange={(e) => setIsGroup(e.target.checked)}
                       id="isGroup"
                     />
-                    <label htmlFor="isGroup" className="text-gray-700 dark:text-gray-300">
-                      Групповой чат
-                    </label>
+                    <label htmlFor="isGroup" className="text-gray-700 dark:text-gray-300">Групповой чат</label>
                   </div>
 
                   {isGroup && (
-                    <div className="max-h-48 overflow-y-auto border rounded p-2 space-y-1">
-                      {friends.map((friend) => (
-                        <label key={friend._id} className="flex items-center space-x-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={selectedUsers.includes(friend._id)}
-                            onChange={() => toggleUserSelection(friend._id)}
-                          />
-                          <span className="text-gray-800 dark:text-white">{friend.username}</span>
-                        </label>
-                      ))}
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowDropdown(!showDropdown)}
+                        className="w-full px-4 py-2 rounded border bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-left"
+                      >
+                        {selectedUsers.length === 0
+                          ? 'Выберите участников...'
+                          : `Выбрано: ${selectedUsers.length}`}
+                      </button>
+                      {showDropdown && (
+                        <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded border bg-white dark:bg-gray-700 shadow-lg">
+                          {friends.map((friend) => (
+                            <label
+                              key={friend._id}
+                              className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedUsers.includes(friend._id)}
+                                onChange={() => toggleUserSelection(friend._id)}
+                                className="mr-2"
+                              />
+                              <div className="flex items-center space-x-2">
+                                <div className="w-6 h-6 rounded-full bg-gray-400" /> {/* Заглушка под аватар */}
+                                <span className="text-sm text-gray-900 dark:text-white">{friend.username}</span>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
 
                 {error && (
-                  <div className="mt-2 text-red-500 text-sm">
-                    {error}
-                  </div>
+                  <div className="mt-2 text-red-500 text-sm">{error}</div>
                 )}
 
                 <div className="mt-6 flex justify-end space-x-2">

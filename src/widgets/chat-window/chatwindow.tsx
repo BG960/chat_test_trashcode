@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import axios from '@/shared/api/client';
 import { Chat, Message, User } from '@/types/chat';
 import { Textarea } from '@/shared/ui/Textarea';
-import { Button } from '@/shared/ui/Button';
+import { Button } from '@/shared/ui/button/Button';
 
 type ChatWindowProps = {
   currentChat: Chat;

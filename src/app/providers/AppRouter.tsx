@@ -6,7 +6,7 @@ import { LoadingScreen } from '@/shared/ui/LoadingScreen';
 const AuthPage = lazy(() => import('@/pages/auth/AuthPage'));
 const MainPage = lazy(() => import('@/pages/main/MainPage'));
 
-export const RouterProvider = () => {
+export const AppRouter = () => {
   const { isAuth, isLoading } = useAuth();
 
   if (isLoading) {
