@@ -8,13 +8,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: 'var(--color-background)',
-        foreground: 'var(--color-foreground)',
-        primary: 'var(--color-primary)',
-        secondary: 'var(--color-secondary)',
-        muted: 'var(--color-muted)',
-        text: 'var(--color-text)',
-        accent: 'var(--color-accent)',
+        background: 'hsl(var(--background)/ <alpha-value>)',
+        foreground: 'hsl(var(--foreground))',
+        muted: 'hsl(var(--muted))',
+        'muted-foreground': 'hsl(var(--muted-foreground))',
+        border: 'hsl(var(--border))',
+        primary: 'hsl(var(--primary))',
+        'primary-foreground': 'hsl(var(--primary-foreground))',
+        accent: 'hsl(var(--accent))',
+        'accent-foreground': 'hsl(var(--accent-foreground))',
       },
       typography: {
         invert: {

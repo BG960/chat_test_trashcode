@@ -1,11 +1,13 @@
-// src/shared/layouts/AppLayout.tsx
 import { PropsWithChildren } from 'react';
-import { cn } from '@/shared/lib/utils';
+import { Sidebar } from '@/widgets/sidebar/ui/sidebar';
+import { Header } from '@/widgets/header/header';
 
-export const AppLayout = ({ children }: PropsWithChildren) => {
-  return (
-    <div className={cn('min-h-screen w-full bg-bg-base text-text-base')}>
-      {children}
+export const AppLayout = ({ children }: PropsWithChildren) => (
+  <div className="flex h-screen w-screen overflow-hidden">
+    <Sidebar />
+    <div className="flex flex-1 flex-col">
+      <Header />
+      <main className="flex flex-1 overflow-hidden">{children}</main>
     </div>
-  );
-};
+  </div>
+);

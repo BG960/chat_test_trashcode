@@ -1,73 +1,50 @@
-// src/shared/ui/button/Button.tsx
-import { FC, ComponentPropsWithoutRef, ComponentProps } from 'react';
-import { motion, MotionProps } from 'framer-motion';
-import clsx from 'clsx';
-import styles from './Button.module.css';
+import { ButtonHTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/shared/lib/utils';
+import { Loader2 } from 'lucide-react';
 
-type NativeButtonProps = ComponentPropsWithoutRef<'button'>;
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type Size = 'sm' | 'md' | 'lg';
 
-interface ButtonProps extends NativeButtonProps {
-  variant?: 'primary' | 'secondary' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
-  fullWidth?: boolean;
-  animated?: boolean;
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  children: ReactNode;
+  variant?: Variant;
+  size?: Size;
+  isLoading?: boolean;
 }
 
-export const Button: FC<ButtonProps> = ({
+export const Button = ({
   children,
   variant = 'primary',
   size = 'md',
-  fullWidth = false,
-  animated = false,
+  isLoading = false,
   className,
-  ...rest
-}) => {
-  const baseClass = clsx(
-    styles.button,
-    styles[variant],
-    styles[size],
-    fullWidth && 'w-full',
-    className
-  );
+  disabled,
+  ...props
+}: ButtonProps) => {
+  const base =
+    'inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
 
-  if (animated) {
-    return (
-      <motion.button
-        type="button"
-        whileTap={{ scale: 0.95 }}
-        whileHover={{ scale: 1.02 }}
-        className={baseClass}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        {...(rest as any)} // безопасно, пока TS конфликтует
-      >
-        {children}
-      </motion.button>
-    );
-  }
+  const variants: Record<Variant, string> = {
+    primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+    secondary: 'bg-muted text-foreground hover:bg-muted/80',
+    ghost: 'bg-transparent hover:bg-accent hover:text-accent-foreground',
+    danger: 'bg-red-500 text-white hover:bg-red-600',
+  };
+
+  const sizes: Record<Size, string> = {
+    sm: 'h-8 px-3 text-sm',
+    md: 'h-10 px-4 text-sm',
+    lg: 'h-12 px-6 text-base',
+  };
 
   return (
-    <button className={baseClass} {...rest}>
+    <button
+      className={cn(base, variants[variant], sizes[size], className)}
+      disabled={disabled || isLoading}
+      {...props}
+    >
+      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
       {children}
     </button>
-  );
-};
-
-// New implementation
-export const ButtonAlt = ({
-  children,
-  className,
-  ...props
-}: MotionProps & ComponentProps<'button'>) => {
-  return (
-    <motion.button
-      {...props}
-      className={clsx(
-        'px-4 py-2 rounded transition-colors duration-200',
-        'bg-primary text-white hover:opacity-90',
-        className
-      )}
-    >
-      {children}
-    </motion.button>
   );
 };

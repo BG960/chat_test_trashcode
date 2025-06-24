@@ -1,60 +1,46 @@
-import { FC, ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import clsx from 'clsx';
-import styles from './Modal.module.css';
+import { ModalOverlay } from './ModalOverlay';
+import { cn } from '@/shared/lib/utils';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
   className?: string;
-  backdropClassName?: string;
-  panelClassName?: string;
 }
 
-export const Modal: FC<ModalProps> = ({
-  isOpen,
-  onClose,
-  children,
-  className,
-  backdropClassName,
-  panelClassName
-}) => {
+export const Modal = ({ isOpen, onClose, children, className }: ModalProps) => {
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
     };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-    } else {
-      document.removeEventListener('keydown', handleKeyDown);
-    }
-
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div
-          className={clsx(styles.backdrop, "fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm", backdropClassName)}
-          onClick={onClose}
-        >
+        <>
+          <ModalOverlay onClick={onClose} />
+
           <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
+            className={cn(
+              'fixed left-1/2 top-1/2 z-50 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-6 shadow-xl',
+              className
+            )}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.97 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            onClick={(e) => e.stopPropagation()}
-            className={clsx(styles.panel, "w-full max-w-md rounded-lg bg-background text-foreground shadow-xl p-6", className, panelClassName)}
           >
             {children}
           </motion.div>
-        </div>
+        </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

@@ -1,21 +1,24 @@
-// shared/ui/ThemeToggle/ThemeToggle.tsx
-import { useEffect, useState } from 'react';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from '@/app/providers/ThemeProvider/ThemeContext';
+import { cn } from '@/shared/lib/utils';
 
 export const ThemeToggle = () => {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <button
-      className="p-2 rounded bg-primary text-white"
-      onClick={() =>
-        setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
-      }
+      onClick={toggleTheme}
+      title="Сменить тему"
+      className={cn(
+        'icon-btn',
+        'rounded-full bg-muted hover:bg-muted/70'
+      )}
     >
-      Переключить тему
+      {theme === 'light' ? (
+        <Moon className="h-5 w-5" />
+      ) : (
+        <Sun className="h-5 w-5" />
+      )}
     </button>
   );
 };
